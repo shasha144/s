@@ -1,0 +1,97 @@
+import tkinter as tk
+from tkinter import messagebox, ttk
+import json
+from datetime import datetime
+
+# Файл для хранения данных
+DATA_FILE = "notes.json"
+
+# Загрузка данных
+def load_notes():
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+# Сохранение данных
+def save_notes():
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(notes, f, ensure_ascii=False, indent=4)
+
+# Обновление списка в таблице
+def update_table():
+    for row in table.get_children():
+        table.delete(row)
+    for note in notes:
+        table.insert("", tk.END, values=(note["date"], note["title"], note["text"]))
+
+# Добавление заметки
+def add_note():
+    title = entry_title.get().strip()
+    text = entry_text.get("1.0", tk.END).strip()
+    date = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    if not title:
+        messagebox.showwarning("Ошибка", "Введите заголовок!")
+        return
+
+    notes.append({"date": date, "title": title, "text": text})
+    save_notes()
+    update_table()
+    
+    entry_title.delete(0, tk.END)
+    entry_text.delete("1.0", tk.END)
+
+# Фильтрация по заголовку
+def filter_notes():
+    keyword = entry_filter.get().strip().lower()
+    for row in table.get_children():
+        table.delete(row)
+    
+    filtered = [n for n in notes if keyword in n["title"].lower()]
+    for note in filtered:
+        table.insert("", tk.END, values=(note["date"], note["title"], note["text"]))
+
+# Сброс фильтра
+def reset_filter():
+    entry_filter.delete(0, tk.END)
+    update_table()
+
+# --- Интерфейс ---
+window = tk.Tk()
+window.title("Мой дневник")
+window.geometry("700x500")
+
+notes = load_notes()
+
+# Поля ввода
+tk.Label(window, text="Заголовок:").pack(pady=5)
+entry_title = tk.Entry(window, width=50)
+entry_title.pack()
+
+tk.Label(window, text="Текст заметки:").pack(pady=5)
+entry_text = tk.Text(window, height=5, width=50)
+entry_text.pack()
+
+tk.Button(window, text="➕ Добавить заметку", command=add_note).pack(pady=10)
+
+# Фильтр
+tk.Label(window, text="Фильтр по заголовку:").pack(pady=5)
+entry_filter = tk.Entry(window, width=30)
+entry_filter.pack()
+
+tk.Button(window, text="🔍 Фильтровать", command=filter_notes).pack(pady=5)
+tk.Button(window, text="🔄 Сбросить фильтр", command=reset_filter).pack(pady=5)
+
+# Таблица с заметками
+columns = ("date", "title", "text")
+table = ttk.Treeview(window, columns=columns, show="headings")
+table.heading("date", text="Дата")
+table.heading("title", text="Заголовок")
+table.heading("text", text="Текст")
+table.pack(fill=tk.BOTH, expand=True, pady=10)
+
+update_table()
+
+window.mainloop()
