@@ -74,15 +74,15 @@ tk.Label(window, text="Текст заметки:").pack(pady=5)
 entry_text = tk.Text(window, height=5, width=50)
 entry_text.pack()
 
-tk.Button(window, text="➕ Добавить заметку", command=add_note).pack(pady=10)
+tk.Button(window, text="Добавить заметку", command=add_note).pack(pady=10)
 
 # Фильтр
 tk.Label(window, text="Фильтр по заголовку:").pack(pady=5)
 entry_filter = tk.Entry(window, width=30)
 entry_filter.pack()
 
-tk.Button(window, text="🔍 Фильтровать", command=filter_notes).pack(pady=5)
-tk.Button(window, text="🔄 Сбросить фильтр", command=reset_filter).pack(pady=5)
+tk.Button(window, text="Фильтровать", command=filter_notes).pack(pady=5)
+tk.Button(window, text="Сбросить фильтр", command=reset_filter).pack(pady=5)
 
 # Таблица с заметками
 columns = ("date", "title", "text")
